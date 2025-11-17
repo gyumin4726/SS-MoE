@@ -1,0 +1,56 @@
+img_size = 448
+_img_resize_size = 512
+img_norm_cfg = dict(mean=[123.675, 116.28, 103.53],
+                    std=[58.395, 57.12, 57.375],
+                    to_rgb=True)
+meta_keys = ('filename', 'ori_filename', 'ori_shape', 'img_shape', 'flip',
+             'flip_direction', 'img_norm_cfg', 'cls_id', 'img_id')
+
+original_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='Resize', size=(_img_resize_size, _img_resize_size)),
+    dict(type='CenterCrop', crop_size=img_size),
+    dict(type='Normalize', **img_norm_cfg),
+    dict(type='ImageToTensor', keys=['img']),
+    dict(type='ToTensor', keys=['gt_label']),
+    dict(type='Collect', keys=['img', 'gt_label'], meta_keys=meta_keys)
+]
+
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='Resize', size=(_img_resize_size, -1)),
+    dict(type='CenterCrop', crop_size=img_size),
+    dict(type='Normalize', **img_norm_cfg),
+    dict(type='ImageToTensor', keys=['img']),
+    dict(type='Collect', keys=['img', 'gt_label'], meta_keys=meta_keys)
+]
+
+data = dict(
+    samples_per_gpu=16,
+    workers_per_gpu=1,
+    train_dataloader=dict(persistent_workers=False),
+    val_dataloader=dict(persistent_workers=False),
+    test_dataloader=dict(persistent_workers=False),
+    train=dict(type='RepeatDataset',
+                times=1,
+                dataset=dict(
+                    type='CUBFSCILDataset',
+                    data_prefix='./data/CUB_200_2011',
+                    pipeline=original_pipeline,
+                    num_cls=100,
+                    subset='train',
+                )),
+    val=dict(
+        type='CUBFSCILDataset',
+        data_prefix='./data/CUB_200_2011',
+        pipeline=test_pipeline,
+        num_cls=100,
+        subset='test',
+    ),
+    test=dict(
+        type='CUBFSCILDataset',
+        data_prefix='./data/CUB_200_2011',
+        pipeline=test_pipeline,
+        num_cls=200,
+        subset='test',
+    ))
