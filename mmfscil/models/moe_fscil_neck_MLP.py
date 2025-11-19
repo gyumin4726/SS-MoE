@@ -14,7 +14,7 @@ class FSCILGate(nn.Module):
                  num_experts: int,
                  top_k: int = 1,
                  eval_top_k: int = None,
-                 use_aux_loss: bool = True,
+                 use_aux_loss: bool = False,
                  aux_loss_weight: float = 0.01,
                  num_heads: int = 8):
         super().__init__()
@@ -122,7 +122,6 @@ class MLPExpert(nn.Module):
                  hidden_dim=None):
         super().__init__()
         self.dim = dim
-        self.expert_id = expert_id
         
         if hidden_dim is None:
             hidden_dim = dim * 4  # Standard FFN expansion ratio (same as MoE Official)
@@ -158,9 +157,8 @@ class MoEFSCIL(nn.Module):
                  num_experts=4,
                  top_k=2,
                  eval_top_k=None,
-                 feat_size=7,
                  hidden_dim=None,
-                 use_aux_loss=True,
+                 use_aux_loss=False,
                  aux_loss_weight=0.01,
                  num_heads=8):
         super().__init__()
@@ -285,7 +283,7 @@ class MoEFSCILNeckMLP(BaseModule):
                  eval_top_k=None,
                  hidden_dim=None,
                  feat_size=3,
-                 use_aux_loss=True,
+                 use_aux_loss=False,
                  aux_loss_weight=0.01):
         super(MoEFSCILNeckMLP, self).__init__(init_cfg=None)
         

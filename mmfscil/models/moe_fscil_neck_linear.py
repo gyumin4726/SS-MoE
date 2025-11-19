@@ -16,7 +16,7 @@ class FSCILGate(nn.Module):
                  num_experts: int,
                  top_k: int = 1,
                  eval_top_k: int = None,
-                 use_aux_loss: bool = True,
+                 use_aux_loss: bool = False,
                  aux_loss_weight: float = 0.01,
                  num_heads: int = 8):
         super().__init__()
@@ -82,9 +82,6 @@ class SS2DExpert(nn.Module):
                  ssm_expand_ratio=1.0):
         super().__init__()
         self.dim = dim
-        self.expert_id = expert_id
-        self.d_state = d_state
-        self.dt_rank = dt_rank
         
         directions = ('h', 'h_flip', 'v', 'v_flip')
         self.ss2d_block = SS2D(
@@ -106,10 +103,8 @@ class SS2DExpert(nn.Module):
 
         x_expert = x_expert.permute(0, 3, 1, 2)  # [B, dim, H, W]
         x_expert = self.avg_pool(x_expert).view(B, -1)  # [B, dim]
-
-        output = x_expert
         
-        return output
+        return x_expert
 
 
 class MoEFSCIL(nn.Module):
@@ -122,7 +117,7 @@ class MoEFSCIL(nn.Module):
                  d_state=1,
                  dt_rank=4,
                  ssm_expand_ratio=1.0,
-                 use_aux_loss=True,
+                 use_aux_loss=False,
                  aux_loss_weight=0.01,
                  num_heads=8):
         super().__init__()
@@ -248,7 +243,7 @@ class MoEFSCILNeckLinear(BaseModule):
                  top_k=2,
                  eval_top_k=None,
                  feat_size=3,
-                 use_aux_loss=True,
+                 use_aux_loss=False,
                  aux_loss_weight=0.01):
         super(MoEFSCILNeckLinear, self).__init__(init_cfg=None)
         
