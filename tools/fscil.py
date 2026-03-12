@@ -200,14 +200,14 @@ if __name__ == '__main__':
         main()
     except RuntimeError as e:
         print(f"[DDP RuntimeError] {e}")
-        # 파라미터 인덱스와 이름 출력
+        # Print parameter index and name
         import torch
         from mmcv.runner import load_checkpoint
         from mmcls.models import build_classifier
         import sys
         import traceback
         
-        # 모델 객체가 model, model_finetune 등으로 되어 있을 수 있으니, globals()에서 찾아봄
+        # Try to find model object (model, model_finetune, etc.) from globals()
         model_obj = None
         for name in ['model', 'model_finetune']:
             if name in globals():
@@ -219,7 +219,7 @@ if __name__ == '__main__':
                 print(f"{idx}: {n}, shape={tuple(p.shape)}")
             print("==== End of Parameter List ====")
         else:
-            print("[WARNING] 모델 객체를 찾을 수 없습니다. model/model_finetune 이름을 확인하세요.")
-        # 전체 traceback도 출력
+            print("[WARNING] Model object not found. Please check model/model_finetune names.")
+        # Also print full traceback
         traceback.print_exc()
         sys.exit(1)

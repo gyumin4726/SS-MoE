@@ -1231,7 +1231,7 @@ class PatchWiseAugment(object):
     
     def _visualize_patches(self, original_img, augmented_patches, patch_positions, img_id):
         """Visualize original and augmented patches side by side."""
-        if img_id % 1000 == 0:  # 1000개 단위로만 시각화 및 로깅
+        if img_id % 1000 == 0:  # visualize and log every 1000 images
             H, W = original_img.shape[:2]
             vis_img = np.zeros((H * 2, W, 3), dtype=np.uint8)
             
@@ -1291,7 +1291,7 @@ class PatchWiseAugment(object):
             results['img'] = img
         
         self.total_images_processed += 1
-        if self.total_images_processed % 1000 == 0:  # 1000개 단위로 수정
+        if self.total_images_processed % 1000 == 0:  # update every 1000 images
             self.logger.info(f'Patch-wise augmentation progress: {self.total_images_processed} images processed')
         
         return results

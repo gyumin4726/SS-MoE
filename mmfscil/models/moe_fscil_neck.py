@@ -28,7 +28,7 @@ class FSCILGate(nn.Module):
         self.aux_loss_weight = aux_loss_weight
         self.num_heads = num_heads
         
-        # Self-attention for spatial context learning (Query 생성용)
+        # Self-attention for spatial context learning (for Query generation)
         self.spatial_self_attention = nn.MultiheadAttention(
             embed_dim=dim,
             num_heads=num_heads,
@@ -51,8 +51,8 @@ class FSCILGate(nn.Module):
     def forward(self, x: torch.Tensor):
         """
         Self-attention + Cross-attention based gating
-        - Self-attention으로 spatial context 학습
-        - Cross-attention으로 expert routing
+        - Learns spatial context via self-attention
+        - Routes to experts via cross-attention
         
         Args:
             x: Input spatial features [B, H, W, dim]
@@ -67,33 +67,33 @@ class FSCILGate(nn.Module):
         # Step 1: Convert to sequence format
         x_spatial = x.view(B, H * W, dim)  # [B, H*W, dim]
         
-        # Step 2: Self-attention for spatial context learning (Query 생성)
+        # Step 2: Self-attention for spatial context learning (Query generation)
         contextualized_features, _ = self.spatial_self_attention(
             query=x_spatial,    # [B, H*W, dim]
             key=x_spatial,      # [B, H*W, dim] 
             value=x_spatial     # [B, H*W, dim]
         )
         
-        # Step 3: Expert queries 준비
+        # Step 3: Prepare expert queries
         expert_queries = self.expert_queries.unsqueeze(0).expand(B, -1, -1)  # [B, num_experts, dim]
         
         # Step 4: Cross-attention for expert routing
         # Query: contextualized features, Key&Value: expert queries
         _, attention_weights = self.expert_cross_attention(
-            query=contextualized_features,  # [B, H*W, dim] - self-attention으로 contextualized된 features
+            query=contextualized_features,  # [B, H*W, dim] - features contextualized by self-attention
             key=expert_queries,            # [B, num_experts, dim]
             value=expert_queries           # [B, num_experts, dim]
         )
         
-        # Step 5: 공간별 expert 선호도를 global expert 선호도로 집계
-        # attention_weights: [B, H*W, num_experts] - 각 spatial position의 expert 선호도
-        spatial_expert_scores = attention_weights.mean(dim=1)  # [B, num_experts] - 공간 평균
+        # Step 5: Aggregate per-spatial-position expert preferences to global expert preferences
+        # attention_weights: [B, H*W, num_experts] - expert preference at each spatial position
+        spatial_expert_scores = attention_weights.mean(dim=1)  # [B, num_experts] - spatial average
         
-        # Step 6: 최종 gate scores 생성
-        # Cross-attention 결과만 사용
+        # Step 6: Generate final gate scores
+        # Use cross-attention result only
         raw_gate_scores = F.softmax(spatial_expert_scores, dim=-1)  # [B, num_experts]
         
-        # Step 7: Top-k selection (학습/평가 모드에 따라 다른 top_k 사용)
+        # Step 7: Top-k selection (different top_k for train/eval mode)
         current_top_k = self.top_k if self.training else self.eval_top_k
         top_k_scores, top_k_indices = raw_gate_scores.topk(current_top_k, dim=-1)  # [B, top_k]
         
@@ -103,10 +103,10 @@ class FSCILGate(nn.Module):
         # Step 8: Compute auxiliary loss for load balancing
         aux_loss = None
         if self.use_aux_loss:
-            # importance: 원본 softmax 확률의 평균 (soft routing 기준 기대 분포)
+            # importance: mean of original softmax probabilities (expected distribution under soft routing)
             importance = raw_gate_scores.mean(0)     # [num_experts]
             
-            # load: 실제 top-k dispatch 결과 (hard routing 분포)
+            # load: actual top-k dispatch result (hard routing distribution)
             # Normalize by top_k to maintain consistent loss scale
             load = (mask / current_top_k).float().mean(0)  # [num_experts]
             
@@ -192,7 +192,7 @@ class MoEFSCIL(nn.Module):
             for i in range(num_experts)
         ])
         
-        # Expert 활성화 누적 통계 추적
+        # Track cumulative expert activation statistics
         self.register_buffer('expert_activation_counts', torch.zeros(num_experts, dtype=torch.long))
         self.register_buffer('total_samples', torch.tensor(0, dtype=torch.long))
         
@@ -203,23 +203,23 @@ class MoEFSCIL(nn.Module):
         # Pass spatial information directly to gate for spatial-aware routing
         aux_loss, top_k_indices, top_k_scores = self.gate(x)  # [B, num_experts] - x is [B, H, W, dim]
         
-        # 가중치 정규화: 선택된 experts의 가중치 합이 1이 되도록
+        # Normalize weights so that selected experts' weights sum to 1
         top_k_scores = F.softmax(top_k_scores, dim=-1)  # [B, top_k]
         
-        # Debug: 10번째 forward마다 현재 배치, 100번째마다 누적 통계 출력 (training 모드에서만)
+        # Debug: print current batch stats every 10 forwards, cumulative stats every 2450 forwards (training mode only)
         if hasattr(self, 'debug_enabled') and self.debug_enabled and self.training:
-            # Forward pass counter 증가
+            # Increment forward pass counter
             if not hasattr(self, 'forward_count'):
                 self.forward_count = 0
             self.forward_count += 1
             
-            # 10번째 forward마다 현재 배치 통계 출력
+            # Print current batch stats every 10 forwards
             if self.forward_count % 10 == 0:
-                # 현재 배치에서 각 expert 활성화 횟수 계산
+                # Compute activation count for each expert in current batch
                 expert_counts = torch.bincount(top_k_indices.flatten(), minlength=self.num_experts)
                 total_activations = expert_counts.sum().item()
                 
-                # 모든 experts 상태를 표시 (활성화되지 않은 것은 -)
+                # Show all experts status (- for inactive experts)
                 expert_status = []
                 active_count = 0
                 for expert_id in range(self.num_experts):
@@ -236,7 +236,7 @@ class MoEFSCIL(nn.Module):
                 print(f"Forward #{self.forward_count:4d} | Batch Active: {active_count}/{self.num_experts} | {status_str}")
                 print("=" * 100)
             
-            # 2450번째 forward마다 누적 통계 출력
+            # Print cumulative stats every 2450 forwards
             if self.forward_count % 2450 == 0 and self.total_samples > 0:
                 cumulative_counts = self.expert_activation_counts.cpu().numpy()
                 total_samples = self.total_samples.item()
@@ -267,11 +267,11 @@ class MoEFSCIL(nn.Module):
                 expert_output = self.experts[expert_idx](x[i:i+1])  # [1, dim]
                 mixed_output[i] += expert_weight * expert_output.squeeze(0)
                 
-                # 누적 통계 추적 (training 모드에서만)
+                # Track cumulative statistics (training mode only)
                 if self.training:
                     self.expert_activation_counts[expert_idx] += 1
         
-        # 샘플 수 누적 (training 모드에서만)
+        # Accumulate sample count (training mode only)
         if self.training:
             self.total_samples += B
         

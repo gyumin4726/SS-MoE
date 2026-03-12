@@ -469,15 +469,15 @@ def fscil(model,
     # acc list for print
     acc_list = []
     acc_list_train = []
-    session_results = []  # 세션별 결과를 저장할 리스트
+    session_results = []  # List to store per-session results
     
-    # 첫 번째 세션 평가
+    # Evaluate the first session
     result = test_session(cfg, model_finetune, distributed, test_feat, test_label,
                        logger, 1, 0, inc_start, inc_start, save_results=True)
     session_results.append(result)
     acc_list.append(result['acc'])
     
-    # 첫 번째 세션 결과 즉시 출력
+    # Print first session results immediately
     logger.info(
         "[{:02d}]Evaluation results : acc : {:.2f} ; acc_base : {:.2f} ; acc_inc : {:.2f}"
         .format(result['session'], result['acc'], result['acc_base'], result['acc_inc']))
@@ -649,7 +649,7 @@ def fscil(model,
             session_results.append(result)
             acc = result['acc']
             
-            # 각 세션 결과 즉시 출력
+            # Print each session result immediately
             logger.info(
                 "[{:02d}]Evaluation results : acc : {:.2f} ; acc_base : {:.2f} ; acc_inc : {:.2f}"
                 .format(result['session'], result['acc'], result['acc_base'], result['acc_inc']))
@@ -674,7 +674,7 @@ def fscil(model,
                 model_finetune,
                 os.path.join(cfg.work_dir, 'session_{}.pth'.format(i + 1)))
     
-    # 모든 세션의 결과를 한 번에 출력
+    # Print all session results at once
     logger.info("\n=== Final Evaluation Results for All Sessions ===")
     for result in session_results:
         logger.info(
@@ -684,7 +684,7 @@ def fscil(model,
             "[{:02d}]Evaluation results : acc_incremental_old : {:.2f} ; acc_incremental_new : {:.2f}"
             .format(result['session'], result['acc_incremental_old'], result['acc_incremental_new']))
     
-    # 전체 정확도 리스트 출력
+    # Print overall accuracy list
     acc_str = ""
     for acc in acc_list:
         acc_str += "{:.2f} ".format(acc)

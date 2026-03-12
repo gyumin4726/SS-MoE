@@ -74,29 +74,29 @@ class LoadImageFromFile(object):
 
 @PIPELINES.register_module()
 class LoadAugmentedImage:
-    """미리 증강된 이미지를 로드합니다.
+    """Loads pre-augmented images.
     
     Args:
-        aug_dir (str): 증강된 이미지가 저장된 디렉토리 경로
+        aug_dir (str): Directory path where augmented images are stored
     """
     def __init__(self, aug_dir):
         self.aug_dir = aug_dir
         
     def __call__(self, results):
-        """증강된 이미지를 로드합니다."""
-        # 원본 이미지 경로에서 클래스 정보 추출
+        """Load augmented images."""
+        # Extract class info from original image path
         original_path = results['img_info']['filename']
         class_name = os.path.basename(os.path.dirname(original_path))
         image_name = os.path.basename(original_path)
         
-        # 증강된 이미지 경로
+        # Augmented image path
         aug_path = os.path.join(self.aug_dir, class_name, image_name)
         
         if os.path.exists(aug_path):
-            # 증강된 이미지가 있으면 로드
+            # Load augmented image if it exists
             results['img'] = mmcv.imread(aug_path)
         else:
-            # 증강된 이미지가 없으면 원본 이미지 사용
+            # Use original image if augmented image does not exist
             pass
             
         return results
@@ -109,30 +109,30 @@ class LoadAugmentedImage:
 
 @PIPELINES.register_module()
 class LoadRotatedImage:
-    """미리 회전된 이미지만 로드합니다.
+    """Loads only pre-rotated images.
     Args:
-        rot_dir (str): 회전 이미지가 저장된 디렉토리 경로
+        rot_dir (str): Directory path where rotated images are stored
     """
     def __init__(self, rot_dir):
         self.rot_dir = rot_dir
 
     def __call__(self, results):
-        # 원본 이미지 경로에서 클래스 정보 추출
+        # Extract class info from original image path
         original_path = results['img_info']['filename']
         class_name = os.path.basename(os.path.dirname(original_path))
         image_name = os.path.basename(original_path)
 
-        # 회전 이미지 파일명 패턴 적용
+        # Apply rotated image filename pattern
         if '_rot' not in image_name:
-            # 원본 파일명에서 회전 파일명으로 변환 (예: xxx.jpg -> xxx_rot30.jpg 등)
-            raise FileNotFoundError(f"회전 이미지 파일명에 '_rot'가 포함되어야 합니다: {image_name}")
+            # Convert original filename to rotated filename (e.g., xxx.jpg -> xxx_rot30.jpg)
+            raise FileNotFoundError(f"Rotated image filename must contain '_rot': {image_name}")
 
         rot_path = os.path.join(self.rot_dir, class_name, image_name)
 
         if os.path.exists(rot_path):
             results['img'] = mmcv.imread(rot_path)
         else:
-            raise FileNotFoundError(f"회전 이미지가 존재하지 않습니다: {rot_path}")
+            raise FileNotFoundError(f"Rotated image does not exist: {rot_path}")
         return results
 
     def __repr__(self):

@@ -230,4 +230,4 @@ class ResNet12(nn.Module):
         if len(self.out_indices) == 1:
             return outs[-1]   # single feature map
         else:
-            return tuple(outs)   # ← list 대신 tuple 반환
+            return tuple(outs)   # ← return tuple instead of list

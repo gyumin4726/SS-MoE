@@ -70,16 +70,16 @@ class CombinedLoss(nn.Module):
     def forward(self, feat, target, labels=None, etf_vec=None, **kwargs):
         dr_loss = self.dr_loss(feat, target)
         
-        # Cross Entropy Loss 계산
+        # Compute Cross Entropy Loss
         if etf_vec is not None:
-            # ETF 벡터를 사용하여 로짓 계산
+            # Compute logits using ETF vectors
             logits = torch.matmul(feat, etf_vec)  # (batch_size, num_classes)
             if labels is None:
-                # 레이블이 제공되지 않은 경우, target에서 가장 큰 값의 인덱스를 사용
+                # If labels are not provided, use argmax of target
                 labels = torch.argmax(target, dim=1)
             ce_loss = self.ce_loss(logits, labels)
         else:
-            # ETF 벡터가 없는 경우 CE Loss를 0으로 설정
+            # If ETF vectors are not provided, set CE Loss to 0
             ce_loss = torch.tensor(0.0, device=feat.device)
         
         total_loss = self.dr_weight * dr_loss + self.ce_weight * ce_loss
@@ -162,7 +162,7 @@ class ETFHead(ClsHead):
         else:
             target = self.etf_vec[:, gt_label].t()
 
-        # CombinedLoss에 원본 레이블 전달
+        # Pass original labels to CombinedLoss
         if isinstance(self.compute_loss, CombinedLoss):
             losses = self.loss(x, target, labels=gt_label)
         else:

@@ -43,7 +43,7 @@ class DirectionalPatchAugment:
         if self.visualize:
             mmcv.mkdir_or_exist(self.vis_dir)
             
-        # 방향별 증강 속성 정의 (SS2D와 일치)
+        # Define per-direction augmentation attributes (aligned with SS2D)
         self.directions = {
             'h': {'attr': 'saturation', 'range': (1.0, 1.0 + strength)},      # →
             'h_flip': {'attr': 'contrast', 'range': (1.0, 1.0 + strength)},   # ←
@@ -58,7 +58,7 @@ class DirectionalPatchAugment:
         positions = []
         
         if direction == 'h':  # →
-            # 왼쪽에서 오른쪽으로, 위에서 아래로 순차적으로 스캔
+            # Scan sequentially from left to right, top to bottom
             for h in range(0, H - self.patch_size + 1, self.patch_size):
                 for w in range(0, W - self.patch_size + 1, self.patch_size):
                     patch = img[h:h+self.patch_size, w:w+self.patch_size].copy()
@@ -66,7 +66,7 @@ class DirectionalPatchAugment:
                     positions.append((h, w))
                     
         elif direction == 'h_flip':  # ←
-            # h와 동일한 순서로 스캔하되, 패치 순서를 뒤집음
+            # Scan in same order as h, but reverse the patch order
             for h in range(0, H - self.patch_size + 1, self.patch_size):
                 for w in range(0, W - self.patch_size + 1, self.patch_size):
                     patch = img[h:h+self.patch_size, w:w+self.patch_size].copy()
@@ -76,7 +76,7 @@ class DirectionalPatchAugment:
             positions.reverse()
                     
         elif direction == 'v':  # ↓
-            # 열 단위로 스캔 (너비를 먼저 순회)
+            # Scan column-by-column (width first)
             for w in range(0, W - self.patch_size + 1, self.patch_size):
                 for h in range(0, H - self.patch_size + 1, self.patch_size):
                     patch = img[h:h+self.patch_size, w:w+self.patch_size].copy()
@@ -84,7 +84,7 @@ class DirectionalPatchAugment:
                     positions.append((h, w))
                     
         else:  # v_flip: ↑
-            # v와 동일한 순서로 스캔하되, 패치 순서를 뒤집음
+            # Scan in same order as v, but reverse the patch order
             for w in range(0, W - self.patch_size + 1, self.patch_size):
                 for h in range(0, H - self.patch_size + 1, self.patch_size):
                     patch = img[h:h+self.patch_size, w:w+self.patch_size].copy()
@@ -124,7 +124,7 @@ class DirectionalPatchAugment:
         attr = self.directions[direction]['attr']
         start_val, end_val = self.directions[direction]['range']
         
-        # 선형적으로 증가하는 변화값 생성
+        # Generate linearly increasing transformation values
         values = np.linspace(start_val, end_val, n_patches)
         
         transformed_patches = []
@@ -135,14 +135,14 @@ class DirectionalPatchAugment:
         return transformed_patches
         
     def _visualize_augmentation(self, original_img, augmented_img, img_id):
-        """시각화 저장."""
-        if img_id % 100 == 0:  # 100개 단위로만 저장
+        """Save visualization."""
+        if img_id % 100 == 0:  # save only every 100 images
             H, W = original_img.shape[:2]
             canvas = np.zeros((H * 2, W, 3), dtype=np.uint8)
             canvas[:H] = original_img
             canvas[H:] = augmented_img
             
-            # 방향 표시 추가
+            # Add direction indicators
             arrows = {
                 'h': '→', 'h_flip': '←', 'v': '↓', 'v_flip': '↑'
             }
@@ -165,17 +165,17 @@ class DirectionalPatchAugment:
             original_img = img.copy() if self.visualize else None
             H, W = img.shape[:2]
             
-            # 각 방향별로 증강 적용
+            # Apply augmentation for each direction
             for direction in self.directions:
                 patches, positions = self._get_patches(img, direction)
                 transformed_patches = self._apply_gradual_transform(patches, direction)
                 
-                # 변환된 패치 복원
+                # Restore transformed patches
                 for patch, (h, w) in zip(transformed_patches, positions):
                     img[h:h+self.patch_size, w:w+self.patch_size] = patch
                     
                 if self.visualize:
-                    # img_id를 직접 results에서 가져옴
+                    # Retrieve img_id directly from results
                     img_id = results.get('cls_id', 0) * 10000 + results.get('img_id', 0)
                     self._visualize_augmentation(original_img, img, img_id)
                 
