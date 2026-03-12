@@ -83,7 +83,7 @@ Required checkpoints:
 - `vssm_small_0229_ckpt_epoch_222.pth`
 - `vssm1_tiny_0230s_ckpt_epoch_264.pth`
 
-After downloading, place the checkpoints directly inside the `SS-MoE` directory.
+After downloading, place the downloaded checkpoint files in the root directory of `SS-MoE`.
 
 Expected structure:
 
@@ -122,31 +122,29 @@ After downloading, extract the dataset into:
 
 ## Training & Evaluation
 
-Run the training script corresponding to each dataset:
+Run the training script for the target dataset:
 
 - `sh train_cub.sh`
 - `sh train_cifar.sh`
 - `sh train_miniimagenet.sh`
 
-Each script first performs training on the **base session**, followed by automatic evaluation across all **incremental sessions** according to the FSCIL protocol.
-
----
+Each script first trains the model on the **base session** and then automatically evaluates performance over all subsequent **incremental sessions** under the FSCIL protocol.
 
 ## Configuration
 
-The main experimental settings can be modified in:
+The main experiment settings can be modified in:
 
 - `configs/<dataset>/<dataset>_base.py`
 - `configs/<dataset>/<dataset>_inc.py`
 
-These configuration files control the training setup for the **base session** and **incremental sessions**, respectively.
+These files define the training setup for the **base session** and **incremental sessions**, respectively.
 
 Key configurable options include:
 
 - **Backbone model**
   - `backbone.model_name`
   - `pretrained_path`
-  - Select the VMamba backbone variant (Tiny / Small / Base).
+  - Select the VMamba backbone variant: Tiny, Small, or Base.
 
 - **Number of MoE experts**
   - `neck.num_experts`
@@ -155,4 +153,4 @@ Key configurable options include:
 - **Top-k routing**
   - `neck.top_k`
   - `neck.eval_top_k`
-  - Determines how many experts are activated during routing.
+  - Controls how many experts are activated during routing.
