@@ -124,9 +124,9 @@ After downloading, extract the dataset into:
 
 Run the training script corresponding to each dataset:
 
-- `bash train_cub.sh`
-- `bash train_cifar.sh`
-- `bash train_miniimagenet.sh`
+- `sh train_cub.sh`
+- `sh train_cifar.sh`
+- `sh train_miniimagenet.sh`
 
 Each script first performs training on the **base session**, followed by automatic evaluation across all **incremental sessions** according to the FSCIL protocol.
 
