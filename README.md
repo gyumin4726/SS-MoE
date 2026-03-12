@@ -119,3 +119,40 @@ https://www.vision.caltech.edu/datasets/cub_200_2011/
 After downloading, extract the dataset into:
 
 - `SS-MoE/data/CUB_200_2011`
+
+## Training & Evaluation
+
+Run the training script corresponding to each dataset:
+
+- `bash train_cub.sh`
+- `bash train_cifar.sh`
+- `bash train_miniimagenet.sh`
+
+Each script first performs training on the **base session**, followed by automatic evaluation across all **incremental sessions** according to the FSCIL protocol.
+
+---
+
+## Configuration
+
+The main experimental settings can be modified in:
+
+- `configs/<dataset>/<dataset>_base.py`
+- `configs/<dataset>/<dataset>_inc.py`
+
+These configuration files control the training setup for the **base session** and **incremental sessions**, respectively.
+
+Key configurable options include:
+
+- **Backbone model**
+  - `backbone.model_name`
+  - `pretrained_path`
+  - Select the VMamba backbone variant (Tiny / Small / Base).
+
+- **Number of MoE experts**
+  - `neck.num_experts`
+  - Specifies the number of experts in the SS-MoE expert pool.
+
+- **Top-k routing**
+  - `neck.top_k`
+  - `neck.eval_top_k`
+  - Determines how many experts are activated during routing.
