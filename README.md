@@ -69,6 +69,28 @@ This section provides step-by-step instructions for setting up the environment r
     pip install fvcore
     ```
 
+## Pretrained Weights
+
+Our implementation uses the official pretrained VMamba checkpoints.
+
+Download the following checkpoints from the official VMamba repository:
+
+https://github.com/MzeroMiko/VMamba
+
+Required checkpoints:
+
+- `vssm_base_0229_ckpt_epoch_237.pth`
+- `vssm_small_0229_ckpt_epoch_222.pth`
+- `vssm1_tiny_0230s_ckpt_epoch_264.pth`
+
+After downloading, place the checkpoints directly inside the `SS-MoE` directory.
+
+Expected structure:
+
+- `SS-MoE/vssm_base_0229_ckpt_epoch_237.pth`
+- `SS-MoE/vssm_small_0229_ckpt_epoch_222.pth`
+- `SS-MoE/vssm1_tiny_0230s_ckpt_epoch_264.pth`
+
 ## Dataset Preparation
 
 All datasets should be placed under the `data/` directory.
@@ -86,7 +108,7 @@ https://cseweb.ucsd.edu/~weijian/static/datasets/mini-ImageNet/MiniImagenet.tar.
 
 After downloading, extract the dataset into:
 
-- `data/miniimagenet`
+- `SS-MoE/data/miniimagenet`
 
 ### CUB-200-2011
 
@@ -96,4 +118,4 @@ https://www.vision.caltech.edu/datasets/cub_200_2011/
 
 After downloading, extract the dataset into:
 
-- `data/CUB_200_2011`
+- `SS-MoE/data/CUB_200_2011`
