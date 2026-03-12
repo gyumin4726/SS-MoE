@@ -113,16 +113,6 @@ Expected structure:
 - `SS-MoE/data/miniimagenet`
 - `SS-MoE/data/CUB_200_2011`
 
-### CUB-200-2011
-
-Download CUB-200-2011 from the official dataset page:
-
-https://www.vision.caltech.edu/datasets/cub_200_2011/
-
-After downloading, extract the dataset into:
-
-- `SS-MoE/data/CUB_200_2011`
-
 ## Training & Evaluation
 
 Run the training script for the target dataset:
