@@ -1,4 +1,4 @@
-# FSCIL
+# SS-MoE
 
 ## Environment Setup
 
@@ -69,13 +69,40 @@ This section provides step-by-step instructions for setting up the environment r
     pip install fvcore
     ```
 
-### Verification
+## Dataset Preparation
 
-After completing the installation steps, verify that your environment is set up correctly by checking the installed packages:
+All datasets should be placed under the `data/` directory.
 
-```bash
-pip list
-```
+### CIFAR-100
 
-You should see all the required packages listed with their correct versions.
+CIFAR-100 will be automatically downloaded during the first run.  
+No manual download is required.
 
+### miniImageNet
+
+Download miniImageNet from the following link:
+
+https://cseweb.ucsd.edu/~weijian/static/datasets/mini-ImageNet/MiniImagenet.tar.gz
+
+After downloading, extract the dataset into:
+
+- `data/miniimagenet`
+
+### CUB-200-2011
+
+Download CUB-200-2011 from the official dataset page:
+
+https://www.vision.caltech.edu/datasets/cub_200_2011/
+
+Direct download link:
+
+http://www.vision.caltech.edu/visipedia-data/CUB-200-2011/CUB_200_2011.tgz
+
+After downloading, extract the dataset into:
+
+- `data/CUB_200_2011`
+
+### Expected Dataset Structure
+
+- `data/CUB_200_2011`
+- `data/miniimagenet`
