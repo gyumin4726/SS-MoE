@@ -94,15 +94,6 @@ Download CUB-200-2011 from the official dataset page:
 
 https://www.vision.caltech.edu/datasets/cub_200_2011/
 
-Direct download link:
-
-http://www.vision.caltech.edu/visipedia-data/CUB-200-2011/CUB_200_2011.tgz
-
 After downloading, extract the dataset into:
 
 - `data/CUB_200_2011`
-
-### Expected Dataset Structure
-
-- `data/CUB_200_2011`
-- `data/miniimagenet`
