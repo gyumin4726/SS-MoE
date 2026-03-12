@@ -49,7 +49,7 @@ This section provides step-by-step instructions for setting up the environment r
 7. **Clone the FSCIL repository:**
    ```bash
    git clone https://github.com/gyumin4726/SS-MoE.git
-   cd FSCIL
+   cd SS-MoE
    ```
 
 8. **Clone the VMamba repository:**
