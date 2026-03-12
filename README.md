@@ -100,15 +100,18 @@ All datasets should be placed under the `data/` directory.
 CIFAR-100 will be automatically downloaded during the first run.  
 No manual download is required.
 
-### miniImageNet
+### miniImageNet and CUB-200-2011
 
-Download miniImageNet from the following link:
+For convenience, the datasets used in FSCIL benchmarks can be downloaded from the following link:
 
-https://cseweb.ucsd.edu/~weijian/static/datasets/mini-ImageNet/MiniImagenet.tar.gz
+https://huggingface.co/datasets/HarborYuan/Few-Shot-Class-Incremental-Learning/blob/main/fscil.zip
 
-After downloading, extract the dataset into:
+Download and extract the archive, then place the datasets under the `data/` directory.
+
+Expected structure:
 
 - `SS-MoE/data/miniimagenet`
+- `SS-MoE/data/CUB_200_2011`
 
 ### CUB-200-2011
 
