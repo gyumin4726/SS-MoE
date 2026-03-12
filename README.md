@@ -46,7 +46,7 @@ This section provides step-by-step instructions for setting up the environment r
    cd ..
    ```
 
-7. **Clone the FSCIL repository:**
+7. **Clone the SS-MoE repository:**
    ```bash
    git clone https://github.com/gyumin4726/SS-MoE.git
    cd SS-MoE
